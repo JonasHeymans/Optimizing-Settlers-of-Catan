@@ -217,9 +217,10 @@ brk <- brk[dist.from.brick+1]
 
 V(pathway)$color[10:63] <- brk[10:63]
 
-plot(pathway, vertex.label=V(pathway)$trade.type, layout = t)
-
 V(pathway)$port.brk[10:63] <- dist.from.brick[10:63]
+
+plot(pathway, vertex.label=V(pathway)$port.brk, layout = t)
+
 
 #Calculate the distance from Grain
 
@@ -296,6 +297,7 @@ V(pathway)$port.evrthn[10:63] <- dist.from.every.min[10:63]
 V(net)$color <- NA
 V(pathway)$color <- NA
 
+
 final_net_node <- as.data.frame(get.vertex.attribute(net))
 final_net_edge <- as.data.frame(get.edgelist(net))
 
@@ -315,10 +317,19 @@ plot(withports, vertex.label= NA, layout = v)
 
 vertex_attr_names(withports)
 
+##########################################
+#New idea for merging graphs
 
+V(net)$port.brk[20:73] <- 1 - (dist.from.brick[10:63]/max(dist.from.brick[10:63]))
 
+V(net)$port.grn[20:73] <- 1 - (dist.from.grain[10:63]/max(dist.from.grain[10:63]))
 
+V(net)$port.lmbr[20:73] <- 1 - (dist.from.lumber[10:63]/max(dist.from.lumber[10:63]))
 
+V(net)$port.ore[20:73] <- 1 - (dist.from.ore[10:63]/max(dist.from.ore[10:63]))
 
+V(net)$port.wl[20:73] <- 1 - (dist.from.wool[10:63]/max(dist.from.wool[10:63]))
+
+V(net)$port.everything[20:73] <- 1 - (dist.from.every.min[10:63]/max(dist.from.every.min[10:63]))
 
 
