@@ -12,12 +12,12 @@ You only need to change the first 19 lines.
 Refer to BlankBoard.jpg for the labeling of the board.
 
 Only change name.type, type.label, and name.roll
-1 Desert
-2 Brick
-3 Grain
-4 Lumber
-5 Ore
-6 Wool
+1	Desert
+2	Brick
+3	Grain
+4	Lumber
+5	Ore
+6	Wool
 
 EXAMPLE Dataset-NODE.csv:
 id	name	name.type	type.label	name.roll
@@ -46,12 +46,12 @@ Update the Pathway-NODES.csv
 This is the network that looks at the pathways to the ports.
 
 You only need to update the first 9 lines for trade.type and trade.label
-1 Everything
-2 Brick
-3 Grain
-4 Lumber
-5 Ore
-6 Wool
+1	Everything
+2	Brick
+3	Grain
+4	Lumber
+5	Ore
+6	Wool
 
 EXAMPLE Pathway-NODES.csv
 id	name	trade.type	trade.label
