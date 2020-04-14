@@ -24,7 +24,7 @@ links <- links[order(links$from, links$to),]
 library(igraph)
 
 #Building the inital Graph
-net <- graph_from_data_frame(d=links, vertices = nodes, directed = F)
+net <- graph_from_data_frame(d=links, vertices = nodes, directed = T)
 
 colrs <- c("burlywood", "chocolate", "gold", "darkgreen", "dimgrey", "darkolivegreen1", "aliceblue")
 V(net)$color <- colrs[V(net)$name.type]
@@ -157,7 +157,8 @@ V(net)$value.scar <- NA
 al <- as_adj_list(net, mode = c("in"))
 scar <- V(net)$roll.scar
 V(net)$value.scar <- sapply(al, function(x) sum(scar[x]))
-V(net)$value.scar
+V(net)$value.scar[1:19] <- NA
+
 
 #Assigning Size and Color to Graph:
 V(net)$size <- (V(net)$value.scar)*9
@@ -200,6 +201,8 @@ V(pathway)$shape <- shp[V(pathway)$trade.type]
 
 t <- layout.auto(pathway)
 
+V(pathway)$trade.type[10:63] <- NA
+
 plot(pathway, vertex.label=V(pathway)$trade.type, layout = t)
 
 ####################################################
@@ -217,9 +220,10 @@ brk <- brk[dist.from.brick+1]
 
 V(pathway)$color[10:63] <- brk[10:63]
 
+V(pathway)$port.brk[10:63] <- dist.from.brick[10:63]
+
 plot(pathway, vertex.label=V(pathway)$trade.type, layout = t)
 
-V(pathway)$port.brk[10:63] <- dist.from.brick[10:63]
 
 #Calculate the distance from Grain
 
@@ -293,32 +297,127 @@ V(pathway)$port.evrthn[10:63] <- dist.from.every.min[10:63]
 #################################################################################
 #Combine the two Graphs
 
-V(net)$color <- NA
-V(pathway)$color <- NA
-
 final_net_node <- as.data.frame(get.vertex.attribute(net))
-final_net_edge <- as.data.frame(get.edgelist(net))
 
-final_pathway_node <- as.data.frame(get.vertex.attribute(pathway))
-final_pathway_edge <- as.data.frame(get.edgelist(pathway))
+##########################################
+#New idea for merging graphs
 
-withports_node <- full_join(final_net_node, final_pathway_node, by = NULL)
-withports_edge <- rbind(final_net_edge, final_pathway_edge)
+V(net)$port.brk[20:73] <- 1 - (dist.from.brick[10:63]/max(dist.from.brick[10:63]))
 
-withports_edge <- withports_edge[order(withports_edge$V1),]
+V(net)$port.grn[20:73] <- 1 - (dist.from.grain[10:63]/max(dist.from.grain[10:63]))
 
-withports <- graph_from_data_frame(d=withports_edge,vertices = withports_node,  directed = F)
+V(net)$port.lmbr[20:73] <- 1 - (dist.from.lumber[10:63]/max(dist.from.lumber[10:63]))
 
-v <- layout.auto(withports)
+V(net)$port.ore[20:73] <- 1 - (dist.from.ore[10:63]/max(dist.from.ore[10:63]))
 
-plot(withports, vertex.label= NA, layout = v)
+V(net)$port.wl[20:73] <- 1 - (dist.from.wool[10:63]/max(dist.from.wool[10:63]))
 
-vertex_attr_names(withports)
+V(net)$port.everything[20:73] <- 1 - (dist.from.every.min[10:63]/max(dist.from.every.min[10:63]))
+
+#########################################################################
+#Compute New Weighted Value
+al <- as_adj_list(net, mode = c("in"))
+
+al <- al[20:73]
+
+resource <- V(net)$name.type[1:19]
+
+the_ports <- function(t){
+  sumvalue <- vector()
+  iter = 1
+  for(n in t){
+    sumvalue[iter] = sum_of_ports(n, iter + 19)
+    iter = iter + 1
+  }
+  return(sumvalue)
+}
+
+sum_of_ports <- function(z, it){
+  result = 0
+  for(m in z){
+    if(resource[m]== 2){
+      result = result + V(net)$port.brk[it]
+    }else if(resource[m]== 3){
+      result = result + V(net)$port.grn[it]
+    }else if(resource[m]== 4){
+      result = result + V(net)$port.lmbr[it]
+    }else if(resource[m]== 5){
+      result = result + V(net)$port.ore[it]
+    }else if(resource[m]== 6){
+      result = result + V(net)$port.wl[it]
+    }else{result = result}
+  }
+  print(result)
+  return(result)
+}
+
+sumvalue <- the_ports(al)
+
+V(net)$value.port <- NA
+
+net <- set_vertex_attr(net, "value.port", index= V(net)[20:73], sumvalue)
+
+V(net)$value.port
+
+vertex_attr_names(net)
+
+V(net)$size <- (V(net)$value.port)*5
+
+V(net)$size[1:19] <- 20
+
+col <- heat(max(V(net)$size[20:73])+1)
+col <- col[V(net)$size[20:73]+1]
+
+V(net)$color[20:73] <- col
+
+plot(net, vertex.label=V(net)$name.roll, layout = l)
+
+#######################################################################
+#Sum of distances
+
+everything_dist <- V(net)$port.everything[20:73]
+
+total_port <- everything_dist*0.333333333 + sumvalue*0.666666666
+
+V(net)$value.port.total <- NA
+
+net <- set_vertex_attr(net, "value.port.total", index= V(net)[20:73], total_port)
+
+V(net)$value.port.total
+
+V(net)$size <- (V(net)$value.port.total)*7
+
+V(net)$size[1:19] <- 20
+
+col <- heat(max(V(net)$size[20:73])+1)
+col <- col[V(net)$size[20:73]+1]
+
+V(net)$color[20:73] <- col
+
+plot(net, vertex.label=V(net)$name.roll, layout = l)
 
 
+#################################################
+#Adding together distance and scarcity rank
 
+value.scar <- V(net)$value.scar[20:73]
 
+value.final <- value.scar*0.6666666666666666 + total_port*0.33333333333333
 
+V(net)$value.port.total <- NA
 
+net <- set_vertex_attr(net, "value.total", index= V(net)[20:73], value.final)
 
+V(net)$value.total
+
+V(net)$size <- (V(net)$value.total)*9
+
+V(net)$size[1:19] <- 20
+
+col <- heat(max(V(net)$size[20:73])+1)
+col <- col[V(net)$size[20:73]+1]
+
+V(net)$color[20:73] <- col
+
+plot(net, vertex.label=V(net)$name.roll, layout = l)
 
