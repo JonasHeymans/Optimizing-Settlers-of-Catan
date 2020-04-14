@@ -1,4 +1,5 @@
 #install.packages("igraph", dependencies = TRUE)
+#install.packages("dplyr", dependencies = TRUE)
 
 rm(list=ls(all=TRUE))       #Clear Environment
 setwd("C:/Users/Callie Ann/Documents/Github/Settlers-of-Catan")     #Set the working directory
@@ -38,9 +39,6 @@ plot(net, vertex.label=V(net)$name.roll, edge.arrow.size=.2, layout = l)
 
 ##################################
 #Calculate Probability
-
-#install.packages("tidyverse", dependencies = TRUE)
-#install.packages("dplyr", dependencies = TRUE)
 
 library(dplyr)
 
@@ -279,7 +277,7 @@ plot(pathway, vertex.label=V(pathway)$trade.type, layout = t)
 V(pathway)$port.wl[10:63] <- dist.from.wool[10:63]
 
 #Distance from Everything Ports
-dist.from.everything <- distances(pathway, v=V(pathway)[trade.type == "1"], 
+dist.from.everything <- distances(pathway, v=V(pathway)[trade.label == "Everything"], 
                             to=V(pathway), mode=c("all"), weights = NA)
 
 
@@ -297,11 +295,6 @@ V(pathway)$port.evrthn[10:63] <- dist.from.every.min[10:63]
 #################################################################################
 #Combine the two Graphs
 
-final_net_node <- as.data.frame(get.vertex.attribute(net))
-
-##########################################
-#New idea for merging graphs
-
 V(net)$port.brk[20:73] <- 1 - (dist.from.brick[10:63]/max(dist.from.brick[10:63]))
 
 V(net)$port.grn[20:73] <- 1 - (dist.from.grain[10:63]/max(dist.from.grain[10:63]))
@@ -313,6 +306,8 @@ V(net)$port.ore[20:73] <- 1 - (dist.from.ore[10:63]/max(dist.from.ore[10:63]))
 V(net)$port.wl[20:73] <- 1 - (dist.from.wool[10:63]/max(dist.from.wool[10:63]))
 
 V(net)$port.everything[20:73] <- 1 - (dist.from.every.min[10:63]/max(dist.from.every.min[10:63]))
+
+final_net_node <- as.data.frame(get.vertex.attribute(net))
 
 #########################################################################
 #Compute New Weighted Value
@@ -347,7 +342,6 @@ sum_of_ports <- function(z, it){
       result = result + V(net)$port.wl[it]
     }else{result = result}
   }
-  print(result)
   return(result)
 }
 
