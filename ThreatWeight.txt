@@ -1,4 +1,0 @@
-name.trade	threat.weight
-2	.666666
-3	.333333
-4	0
