@@ -2,6 +2,8 @@
 The optimal starting postion in Settlers of Catan has many factors that affect the choice.
 Using probability, resource scarcity and the ability to trade has been used to identify a possible choice.
 
+You will need to place the Dataset, Pathway and Probabilites in your working directory.
+
 The following R libraries are need to run this program:
 
 igraph
