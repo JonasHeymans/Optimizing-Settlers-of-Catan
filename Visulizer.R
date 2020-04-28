@@ -317,6 +317,8 @@ al <- al[20:73]
 
 resource <- V(net)$name.type[1:19]
 
+profit <- V(net)$roll.prob[1:19]
+
 the_ports <- function(t){
   sumvalue <- vector()
   iter = 1
@@ -331,15 +333,15 @@ sum_of_ports <- function(z, it){
   result = 0
   for(m in z){
     if(resource[m]== 2){
-      result = result + V(net)$port.brk[it]
+      result = result + V(net)$port.brk[it]*profit[m]
     }else if(resource[m]== 3){
-      result = result + V(net)$port.grn[it]
+      result = result + V(net)$port.grn[it]*profit[m]
     }else if(resource[m]== 4){
-      result = result + V(net)$port.lmbr[it]
+      result = result + V(net)$port.lmbr[it]*profit[m]
     }else if(resource[m]== 5){
-      result = result + V(net)$port.ore[it]
+      result = result + V(net)$port.ore[it]*profit[m]
     }else if(resource[m]== 6){
-      result = result + V(net)$port.wl[it]
+      result = result + V(net)$port.wl[it]*profit[m]
     }else{result = result}
   }
   return(result)
@@ -355,7 +357,7 @@ V(net)$value.port
 
 vertex_attr_names(net)
 
-V(net)$size <- (V(net)$value.port)*5
+V(net)$size <- (V(net)$value.port)*50
 
 V(net)$size[1:19] <- 20
 
@@ -371,7 +373,9 @@ plot(net, vertex.label=V(net)$name.roll, layout = l)
 
 everything_dist <- V(net)$port.everything[20:73]
 
-total_port <- everything_dist*0.333333333 + sumvalue*0.666666666
+profit2 = V(net)$value.prob[20:73]
+
+total_port <- profit2*everything_dist*0.333333333 + sumvalue*0.666666666
 
 V(net)$value.port.total <- NA
 
@@ -379,7 +383,7 @@ net <- set_vertex_attr(net, "value.port.total", index= V(net)[20:73], total_port
 
 V(net)$value.port.total
 
-V(net)$size <- (V(net)$value.port.total)*7
+V(net)$size <- (V(net)$value.port.total)*60
 
 V(net)$size[1:19] <- 20
 
@@ -396,7 +400,7 @@ plot(net, vertex.label=V(net)$name.roll, layout = l)
 
 value.scar <- V(net)$value.scar[20:73]
 
-value.final <- value.scar*0.6666666666666666 + total_port*0.33333333333333
+value.final <- value.scar*0.6666666666666 + total_port*0.3333333333333
 
 V(net)$value.port.total <- NA
 
@@ -404,7 +408,7 @@ net <- set_vertex_attr(net, "value.total", index= V(net)[20:73], value.final)
 
 V(net)$value.total
 
-V(net)$size <- (V(net)$value.total)*9
+V(net)$size <- (V(net)$value.total)*12
 
 V(net)$size[1:19] <- 20
 
